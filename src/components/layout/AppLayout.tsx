@@ -24,6 +24,15 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-gradient-to-br from-accent/6 to-transparent rounded-full blur-3xl animate-float-delay-3" />
       </div>
 
+      {/* Desktop Logo (Top Right) */}
+      <div 
+        className={`hidden md:block fixed top-0 right-0 z-40 pointer-events-none select-none transition-opacity duration-300 ${
+          !isSidebarCollapsed ? 'opacity-0' : 'opacity-90 animate-fade-in'
+        }`}
+      >
+        <img src="/logo.png" alt="ProSess" className="h-28 w-auto drop-shadow-md" />
+      </div>
+
       {/* Desktop Sidebar */}
       <div className="hidden md:flex fixed left-0 top-0 h-full z-30">
         <Sidebar 

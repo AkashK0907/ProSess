@@ -7,7 +7,7 @@ import { initializeDefaultTasks, toggleTaskCompletion } from "@/lib/taskStorage"
 import { LoadingScreen } from "@/components/ui/spinner";
 import { useTasks, useTaskCompletions, QUERY_KEYS, useUser } from "@/hooks/useData";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -216,34 +216,7 @@ export default function Tracker() {
     return `${months[start.getMonth()]} ${start.getDate()} - ${months[end.getMonth()]} ${end.getDate()}, ${start.getFullYear()}`;
   };
 
-  const handleExportCSV = () => {
-    // ... CSV logic remains same for weekly ...
-    const header = ["Task Name", ...dates.map(d => formatDate(d)), "Total"];
-    const rows = tasks.map(task => { 
-      const rowData = [
-        `"${task.name}"`,
-        ...dates.map(date => {
-          const dateKey = formatDate(date);
-          return completionData[dateKey]?.[task.id] ? "Completed" : "-";
-        }),
-        dates.reduce((acc, date) => {
-          const dateKey = formatDate(date);
-          return acc + (completionData[dateKey]?.[task.id] ? 1 : 0);
-        }, 0)
-      ];
-      return rowData.join(",");
-    });
 
-    const csvContent = [header.join(","), ...rows].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `focus_flow_tracker_${getRangeDisplay().replace(/ /g, "_")}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   if (loading) {
      return (
@@ -279,15 +252,6 @@ export default function Tracker() {
                 className="p-2 md:p-1 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 hover:bg-background rounded-md transition-colors text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-5 h-5 md:w-4 md:h-4" />
-              </button>
-
-              <button
-                onClick={handleExportCSV}
-                className="ml-0 sm:ml-2 flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md transition-colors min-h-[44px] md:min-h-0"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Export CSV</span>
-                <span className="sm:hidden">Export</span>
               </button>
             </div>
           </div>

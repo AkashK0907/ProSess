@@ -26,6 +26,7 @@ export function Sidebar({ isCollapsed, onToggle, className = "", onItemClick }: 
       } ${className}`}
     >
       {/* Logo and Toggle Button */}
+      {/* Logo and Toggle Button */}
       <div className="px-6 py-8 relative">
         {!isCollapsed && (
           <>
