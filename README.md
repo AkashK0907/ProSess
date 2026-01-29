@@ -1,73 +1,72 @@
-# Welcome to your Lovable project
+# ProSess
 
-## Project info
+**ProSess** is a premium productivity and focus application designed to help you master your time and enter a deep state of flow. Whether you're studying, coding, or working on creative projects, ProSess provides the tools you need to stay on track.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+![ProSess Preview](public/og-image.png)
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
+### ⏱️ Advanced Focus Timer
 
-**Use Lovable**
+- **Flexible Modes:** Choose from classic **Pomodoro (25/5)**, **Long Sessions (50/10)**, or **Free Flow** for unstructured work.
+- **Visual Feedback:** Elegant timer interface with clear progress indicators.
+- **Smart Logic:** Automatic session recording and break management.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### 🎧 Immersive Audio Environment
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Built-in Soundscapes:** High-quality offline audio tracks including Heavy Rain, Forest Nature, Ocean Waves, Brown Noise, and more.
+- **Seamless Playback:** Music auto-resumes when you reload and toggles intelligently during breaks.
+- **Persistent Settings:** The app remembers your music preferences across sessions.
 
-**Use your preferred IDE**
+### 📊 Detailed Analytics
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Session History:** Track exactly how much time you spend on each subject.
+- **Visual Charts:** View your progress with weekly bar charts, subject distribution pies, and consistency heatmaps.
+- **Streaks:** Gamified streak counter to keep you motivated daily.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 📱 Responsive Design
 
-Follow these steps:
+- **Mobile-First:** Fully optimized for all devices, from desktop to mobile.
+- **Modern UI:** Built with a clean, distraction-free aesthetic using **shadcn/ui** and **Tailwind CSS**.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🛠️ Tech Stack
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **Framework:** React + Vite
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Components:** shadcn/ui
+- **Icons:** Lucide React
+- **State Management:** React Context + React Query
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🚀 Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+1.  **Clone the repository**
 
-**Edit a file directly in GitHub**
+    ```bash
+    git clone https://github.com/AkashK0907/ProSess.git
+    cd ProSess
+    ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+2.  **Install dependencies**
 
-**Use GitHub Codespaces**
+    ```bash
+    npm install
+    ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3.  **Start the development server**
 
-## What technologies are used for this project?
+    ```bash
+    npm run dev
+    ```
 
-This project is built with:
+4.  **Backend (Optional)**
+    The project includes a lightweight backend for data persistence.
+    ```bash
+    cd backend
+    npm install
+    npm run start
+    ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📄 License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is open source and available under the [MIT License](LICENSE).
