@@ -2,8 +2,6 @@
 
 **ProSess** is a premium productivity and focus application designed to help you master your time and enter a deep state of flow. Whether you're studying, coding, or working on creative projects, ProSess provides the tools you need to stay on track.
 
-![ProSess Preview](public/og-image.png)
-
 ## ✨ Features
 
 ### ⏱️ Advanced Focus Timer
@@ -67,6 +65,3 @@
     npm run start
     ```
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
