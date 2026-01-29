@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { LoadingScreen } from "@/components/ui/spinner";
 import { FocusHeatmap } from "@/components/stats/FocusHeatmap";
 import {
@@ -280,15 +279,12 @@ export default function Stats() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <LoadingScreen message="Loading statistics..." />
-      </AppLayout>
+      <LoadingScreen message="Loading statistics..." />
     );
   }
 
   return (
-    <AppLayout>
-      <div className="space-y-12">
+    <div className="space-y-8 animate-fade-in">
         {/* Session Stats */}
         <section className="animate-fade-up">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -538,7 +534,6 @@ export default function Stats() {
             </div>
           </div>
         </section>
-      </div>
-    </AppLayout>
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { Mail, Phone, Flame, Trophy, Calendar, TrendingUp, LogOut, Edit2 } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { SessionStats, calculateStats } from "@/lib/sessionStorage";
 import { useSessions, useUser, useUpdateUser } from "@/hooks/useData";
 import { logout } from "@/lib/auth";
@@ -67,16 +66,14 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Loading profile...</p>
-        </div>
-      </AppLayout>
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Loading profile...</p>
+      </div>
     );
   }
 
   return (
-    <AppLayout>
+    <div className="space-y-12 animate-fade-in">
       <div className="space-y-12">
         {/* Profile Info */}
         <section className="animate-fade-up">
@@ -319,6 +316,6 @@ export default function Profile() {
           </div>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </div>
   );
 }

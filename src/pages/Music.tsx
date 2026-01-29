@@ -1,5 +1,4 @@
 import { Music2, Play, Volume2, Check, X, ShieldCheck } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { useMusic } from "@/context/MusicContext";
 
 export default function MusicPage() {
@@ -12,7 +11,7 @@ export default function MusicPage() {
   };
 
   return (
-    <AppLayout>
+    <div className="space-y-8 animate-fade-in">
       <div className="space-y-8">
         <section className="animate-fade-up">
           <h2 className="section-title">Focus Playlist</h2>
@@ -103,6 +102,6 @@ export default function MusicPage() {
            </div>
         </section>
       </div>
-    </AppLayout>
+    </div>
   );
 }

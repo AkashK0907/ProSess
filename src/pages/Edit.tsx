@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { LoadingScreen } from "@/components/ui/spinner";
 import {
   useSubjects,
@@ -72,14 +71,14 @@ export default function Edit() {
 
   if (loading) {
     return (
-      <AppLayout>
+      <div className="flex items-center justify-center h-64">
         <LoadingScreen message="Loading..." />
-      </AppLayout>
+      </div>
     );
   }
 
   return (
-    <AppLayout>
+    <div className="space-y-12 animate-fade-in">
       <div className="space-y-12">
         {/* Subjects */}
         <section className="animate-fade-up">
@@ -203,6 +202,6 @@ export default function Edit() {
           </div>
         </section>
       </div>
-    </AppLayout>
+    </div>
   );
 }

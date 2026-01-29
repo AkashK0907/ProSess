@@ -28,12 +28,22 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="surface-card p-8 rounded-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-background via-background to-secondary/20 animate-gradient" />
+
+      {/* Floating decorative orbs */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-32 right-1/3 w-80 h-80 bg-gradient-to-br from-accent/8 to-transparent rounded-full blur-3xl animate-float-delay-1" />
+      </div>
+      
+      <div className="w-full max-w-md relative z-10 animate-fade-up">
+        {/* Glassmorphism Card */}
+        <div className="backdrop-blur-xl bg-card/60 border border-border/50 p-8 rounded-2xl shadow-xl ring-1 ring-white/5">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
-            <p className="text-muted-foreground">Sign in to your Focus Flow account</p>
+            <h1 className="text-4xl font-bold tracking-tight mb-2 gradient-text">Welcome Back</h1>
+            <p className="text-muted-foreground text-base">Sign in to your ProSess account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -47,6 +57,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                className="bg-background/50 border-input/50 focus:bg-background transition-all"
               />
             </div>
 
@@ -60,18 +71,19 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                className="bg-background/50 border-input/50 focus:bg-background transition-all"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full h-11 text-base shadow-lg hover:shadow-primary/25 transition-all duration-300" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
               Don't have an account?{' '}
-              <Link to="/register" className="text-primary hover:underline font-medium">
+              <Link to="/register" className="text-primary hover:text-primary/80 hover:underline font-semibold transition-colors">
                 Sign up
               </Link>
             </p>

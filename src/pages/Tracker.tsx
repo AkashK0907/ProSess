@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
+
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { DateHeader } from "@/components/tracker/DateHeader";
 import { TaskRow } from "@/components/tracker/TaskRow";
@@ -220,15 +220,12 @@ export default function Tracker() {
 
   if (loading) {
      return (
-       <AppLayout>
-         <LoadingScreen message="Loading tasks..." />
-       </AppLayout>
+       <LoadingScreen message="Loading tasks..." />
      );
   }
 
   return (
-    <AppLayout>
-      <div className="space-y-12">
+    <div className="space-y-8 animate-fade-in">
         {/* Consistency Chart */}
         <section className="animate-fade-up">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -396,7 +393,6 @@ export default function Tracker() {
             </div>
           </div>
         </section>
-      </div>
-    </AppLayout>
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Play, Pause, Square, Music, Music2, Plus, Edit2, Trash2, Calendar, Clock, FileText } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { StudySession, formatDate } from "@/lib/sessionStorage";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/spinner";
@@ -402,9 +401,7 @@ export default function Sessions() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <LoadingScreen message="Loading sessions..." />
-      </AppLayout>
+      <LoadingScreen message="Loading sessions..." />
     );
   }
 
@@ -416,7 +413,7 @@ export default function Sessions() {
   const recentHistory = allSessions.slice(0, 5);
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-12">
         {/* Current Session Timer */}
         <section className="animate-fade-up relative">
@@ -700,6 +697,6 @@ export default function Sessions() {
           )}
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   );
 }

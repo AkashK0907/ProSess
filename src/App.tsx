@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { MusicProvider } from "@/context/MusicContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Sessions from "./pages/Sessions";
@@ -30,13 +31,22 @@ const App = () => (
             <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />
             <Route path="/register" element={isAuthenticated() ? <Navigate to="/" replace /> : <Register />} />
             
-            {/* Protected routes */}
-            <Route path="/" element={<ProtectedRoute><Sessions /></ProtectedRoute>} />
-            <Route path="/tracker" element={<ProtectedRoute><Tracker /></ProtectedRoute>} />
-            <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
-            <Route path="/edit" element={<ProtectedRoute><Edit /></ProtectedRoute>} />
-            <Route path="/music" element={<ProtectedRoute><Music /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            {/* Protected routes with persistent Layout */}
+            <Route element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Outlet />
+                </AppLayout>
+              </ProtectedRoute>
+            }>
+              <Route path="/" element={<Sessions />} />
+              <Route path="/tracker" element={<Tracker />} />
+              <Route path="/stats" element={<Stats />} />
+              <Route path="/edit" element={<Edit />} />
+              <Route path="/music" element={<Music />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
