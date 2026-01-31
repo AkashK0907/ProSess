@@ -376,36 +376,38 @@ export default function Tracker() {
           <div className="flex flex-col md:flex-row gap-6">
             {/* Tracker Grid - Enable horizontal scroll on mobile */}
             <div className="flex-1 surface-card p-4 md:p-6 overflow-x-auto">
-              <DateHeader dates={dates} currentDate={today} />
-              
-              {/* Task Rows */}
-              <div className="space-y-0">
-                {tasks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground mb-3">No tasks added yet.</p>
-                    <p className="text-sm text-muted-foreground">
-                      Add tasks from the <a href="/edit" className="text-primary hover:underline font-medium">Edit page</a> to start tracking.
-                    </p>
-                  </div>
-                ) : (
-                  tasks.map((task) => {
-                    const totalCompletions = Object.values(completionData).reduce((acc, dayData) => {
-                      return acc + (dayData[task.id] ? 1 : 0);
-                    }, 0);
+              <div className="min-w-[800px] md:min-w-0">
+                <DateHeader dates={dates} currentDate={today} />
+                
+                {/* Task Rows */}
+                <div className="space-y-0">
+                  {tasks.length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground mb-3">No tasks added yet.</p>
+                      <p className="text-sm text-muted-foreground">
+                        Add tasks from the <a href="/edit" className="text-primary hover:underline font-medium">Edit page</a> to start tracking.
+                      </p>
+                    </div>
+                  ) : (
+                    tasks.map((task) => {
+                      const totalCompletions = Object.values(completionData).reduce((acc, dayData) => {
+                        return acc + (dayData[task.id] ? 1 : 0);
+                      }, 0);
 
-                    return (
-                      <TaskRow
-                        key={task.id}
-                        task={task}
-                        dates={dates}
-                        currentDate={today}
-                        completions={completionData}
-                        onToggle={handleToggle}
-                        totalCompletions={totalCompletions} 
-                      />
-                    );
-                  })
-                )}
+                      return (
+                        <TaskRow
+                          key={task.id}
+                          task={task}
+                          dates={dates}
+                          currentDate={today}
+                          completions={completionData}
+                          onToggle={handleToggle}
+                          totalCompletions={totalCompletions} 
+                        />
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
 
