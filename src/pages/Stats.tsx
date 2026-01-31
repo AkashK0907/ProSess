@@ -148,8 +148,47 @@ export default function Stats() {
   // Get subject breakdown for pie chart
   const getSubjectData = () => {
     const subjectTotals: { [key: string]: number } = {};
+    const now = new Date();
     
-    sessions.forEach(s => {
+    // Filter sessions based on timeRange
+    let filteredSessions = sessions;
+    
+    if (timeRange === "daily") {
+      const today = formatDate(now);
+      filteredSessions = sessions.filter(s => s.date === today);
+    } else if (timeRange === "weekly") {
+      const endOfPeriod = new Date(now);
+      endOfPeriod.setDate(now.getDate() + (weekOffset * 7));
+      
+      const startOfPeriod = new Date(endOfPeriod);
+      startOfPeriod.setDate(endOfPeriod.getDate() - 6);
+      
+      // Normalize to start of day for comparison
+      const start = new Date(startOfPeriod); start.setHours(0,0,0,0);
+      const end = new Date(endOfPeriod); end.setHours(23,59,59,999);
+      
+      filteredSessions = sessions.filter(s => {
+        // Handle timezone issues by using local date parts if possible or just standard date parsing
+        // Given s.date is YYYY-MM-DD
+        const [y, m, d] = s.date.split('-').map(Number);
+        const date = new Date(y, m - 1, d);
+        return date >= start && date <= end;
+      });
+    } else if (timeRange === "monthly") {
+      const targetDate = new Date(now);
+      targetDate.setDate(1);
+      targetDate.setMonth(now.getMonth() + monthOffset);
+      const targetMonth = targetDate.getMonth();
+      const targetYear = targetDate.getFullYear();
+      
+      filteredSessions = sessions.filter(s => {
+        const [y, m, d] = s.date.split('-').map(Number);
+        const date = new Date(y, m - 1, d);
+        return date.getMonth() === targetMonth && date.getFullYear() === targetYear;
+      });
+    }
+    
+    filteredSessions.forEach(s => {
       // Check if subject still exists
       if (subjects.find(sub => sub.name === s.subject)) {
         subjectTotals[s.subject] = (subjectTotals[s.subject] || 0) + s.minutes;
@@ -235,8 +274,8 @@ export default function Stats() {
   };
 
   const barDataKey = timeRange === "monthly" ? "week" : timeRange === "weekly" ? "day" : "name";
-  const barData = useMemo(() => getBarData(), [timeRange, sessions, subjects, weekOffset, monthOffset]); // Added deps
-  const subjectData = useMemo(() => getSubjectData(), [sessions, subjects]);
+  const barData = useMemo(() => getBarData(), [timeRange, sessions, subjects, weekOffset, monthOffset]);
+  const subjectData = useMemo(() => getSubjectData(), [timeRange, sessions, subjects, weekOffset, monthOffset]);
   const taskStats = useMemo(() => getTaskStats(), [tasks, completionData]);
 
   const taskCompletionData = [
