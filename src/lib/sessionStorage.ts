@@ -66,18 +66,33 @@ export const getSessions = async (): Promise<StudySession[]> => {
 
   try {
     const response = await sessionsApi.getAll();
-    const sessions: StudySession[] = response.sessions.map((s: any) => ({
+    const serverSessions: StudySession[] = response.sessions.map((s: any) => ({
       id: s._id,
       subject: s.subject,
       minutes: s.minutes,
       date: s.date,
       notes: s.notes,
     }));
+
+    // MERGE STRATEGY:
+    // 1. Get current local sessions
+    // 2. Identify "offline only" sessions (those with numeric timestamp IDs which backend doesn't generate)
+    // 3. Keep offline sessions that aren't in the server list
+    const currentLocal = getLocalSessions();
+    const offlineSessions = currentLocal.filter(local => 
+      // Assuming server IDs are non-numeric strings (Mongo ObjectIds) and local IDs are timestamps
+      // Or simply check if this ID exists in serverSessions
+      !serverSessions.some(server => server.id === local.id)
+    );
+
+    // Combine server sessions + preserved offline sessions
+    const mergedSessions = [...serverSessions, ...offlineSessions];
+
     // Cache for 30 seconds
-    dataCache.set(cacheKey, sessions, 30000);
-    // Update localStorage cache
-    saveLocalSessions(sessions);
-    return sessions;
+    dataCache.set(cacheKey, mergedSessions, 30000);
+    // Update localStorage cache with the merged list
+    saveLocalSessions(mergedSessions);
+    return mergedSessions;
   } catch (error) {
     console.error('Failed to fetch sessions from API, using localStorage:', error);
     return getLocalSessions();

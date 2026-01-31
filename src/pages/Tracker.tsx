@@ -55,12 +55,45 @@ export default function Tracker() {
   }, [user]);
 
   // Toggle Mutation
+  // Toggle Mutation
   const toggleMutation = useMutation({
     mutationFn: async ({ taskId, date }: { taskId: string; date: Date }) => {
       const dateKey = formatDate(date);
       return await toggleTaskCompletion(taskId, dateKey);
     },
-    onSuccess: () => {
+    onMutate: async ({ taskId, date }) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.completions] });
+
+      // Snapshot the previous value
+      const previousCompletions = queryClient.getQueryData([QUERY_KEYS.completions]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData([QUERY_KEYS.completions], (old: any) => {
+        const dateKey = formatDate(date);
+        const dayData = old?.[dateKey] || {};
+        const currentVal = dayData[taskId] || false;
+        
+        return {
+          ...old,
+          [dateKey]: {
+            ...dayData,
+            [taskId]: !currentVal // Toggle immediately
+          }
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousCompletions };
+    },
+    onError: (_err, _newTodo, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousCompletions) {
+        queryClient.setQueryData([QUERY_KEYS.completions], context.previousCompletions);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success:
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.completions] });
     },
   });

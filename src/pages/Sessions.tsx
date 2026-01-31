@@ -573,13 +573,18 @@ export default function Sessions() {
                   </button>
                   <button
                     onClick={handleStop}
-                    className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-destructive/80 to-destructive/60 hover:from-destructive hover:to-destructive/80 flex items-center justify-center shadow-lg hover:shadow-xl hover:shadow-destructive/20 transition-all duration-300 hover:scale-110 active:scale-95"
+                    disabled={addSessionMutation.isPending}
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-destructive/80 to-destructive/60 hover:from-destructive hover:to-destructive/80 flex items-center justify-center shadow-lg hover:shadow-xl hover:shadow-destructive/20 transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     aria-label="Stop session"
                   >
-                    <Square
-                      className="w-6 h-6 md:w-7 md:h-7 text-destructive-foreground"
-                      fill="currentColor"
-                    />
+                    {addSessionMutation.isPending ? (
+                      <div className="w-6 h-6 border-2 border-destructive-foreground/30 border-t-destructive-foreground rounded-full animate-spin" />
+                    ) : (
+                      <Square
+                        className="w-6 h-6 md:w-7 md:h-7 text-destructive-foreground"
+                        fill="currentColor"
+                      />
+                    )}
                   </button>
                   {isBreak && (
                     <button

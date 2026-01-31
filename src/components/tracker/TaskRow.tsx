@@ -36,7 +36,7 @@ export function TaskRow({
   return (
     <div className="grid grid-cols-[1fr_repeat(7,60px)_80px] gap-2 py-3 border-b border-border last:border-0 items-center hover:bg-muted/20 transition-colors">
       {/* Task name */}
-      <div className="flex items-center gap-2 px-2">
+      <div className="flex items-center gap-2 px-2 min-w-0">
         <span className="font-medium truncate">{task.name}</span>
       </div>
 
