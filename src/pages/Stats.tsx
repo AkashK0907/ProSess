@@ -273,6 +273,81 @@ export default function Stats() {
     };
   };
 
+  // Calculate average minutes
+  const averageMinutes = useMemo(() => {
+    if (timeRange === "daily") return 0;
+
+    const now = new Date();
+    
+    if (timeRange === "weekly") {
+      // Calendar Week (Monday - Sunday)
+      const targetDate = new Date();
+      targetDate.setDate(now.getDate() + (weekOffset * 7));
+      
+      // Get start of week (Monday)
+      // day: 0 (Sun) ... 6 (Sat)
+      // If Mon start: adjustedDay = day === 0 ? 6 : day - 1
+      const day = targetDate.getDay();
+      const diffToMon = day === 0 ? 6 : day - 1; 
+      
+      const startOfWeek = new Date(targetDate);
+      startOfWeek.setDate(targetDate.getDate() - diffToMon);
+      startOfWeek.setHours(0, 0, 0, 0);
+      
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+
+      const weekSessions = sessions.filter(s => {
+        const [y, m, d] = s.date.split('-').map(Number);
+        const sDate = new Date(y, m - 1, d);
+        // Compare timestamps
+        return sDate.getTime() >= startOfWeek.getTime() && sDate.getTime() <= endOfWeek.getTime();
+      });
+      
+      const totalMinutes = weekSessions.reduce((acc, s) => acc + s.minutes, 0);
+      
+      // Divisor logic
+      let divisor = 7;
+      if (weekOffset === 0) {
+        // Current week: divide by days passed (including today)
+        // Mon=1, Tue=2, ... Sun=7
+        const currentDay = now.getDay();
+        divisor = currentDay === 0 ? 7 : currentDay;
+      }
+      
+      return Math.round(totalMinutes / divisor);
+    } 
+    
+    if (timeRange === "monthly") {
+      // Calendar Month
+       const targetDate = new Date();
+       targetDate.setDate(1); // Set to 1st
+       targetDate.setMonth(now.getMonth() + monthOffset);
+       
+       const year = targetDate.getFullYear();
+       const month = targetDate.getMonth();
+       
+       const monthSessions = sessions.filter(s => {
+         const [y, m, d] = s.date.split('-').map(Number);
+         return y === year && (m - 1) === month;
+       });
+       
+       const totalMinutes = monthSessions.reduce((acc, s) => acc + s.minutes, 0);
+
+       let divisor = new Date(year, month + 1, 0).getDate(); // Total days in month
+       
+       if (monthOffset === 0) {
+         // Current month: divide by days passed (today is nth day)
+         divisor = now.getDate();
+       }
+       
+       return Math.round(totalMinutes / divisor);
+    }
+
+    return 0;
+  }, [timeRange, sessions, weekOffset, monthOffset]);
+
   const barDataKey = timeRange === "monthly" ? "week" : timeRange === "weekly" ? "day" : "name";
   const barData = useMemo(() => getBarData(), [timeRange, sessions, subjects, weekOffset, monthOffset]);
   const subjectData = useMemo(() => getSubjectData(), [timeRange, sessions, subjects, weekOffset, monthOffset]);
@@ -357,6 +432,14 @@ export default function Stats() {
                   )}
                   {timeRange === "monthly" && "Focus Heatmap"}
                 </h3>
+
+                {timeRange !== "daily" && (
+                  <div className="bg-primary/10 px-3 py-1 rounded-full">
+                    <p className="text-xs font-medium text-primary">
+                      Avg: {averageMinutes}m / day
+                    </p>
+                  </div>
+                )}
                 
                 {timeRange === "monthly" && (
                    <div className="flex items-center bg-secondary/50 rounded-lg p-1">
