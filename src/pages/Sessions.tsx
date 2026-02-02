@@ -62,9 +62,11 @@ interface ActiveSession {
   isRunning: boolean;
   startTime: number; // timestamp when session started
   activeSubject: string | null;
+  activeSubjectName?: string; // Cache name for offline saving
   pomodoroMode: PomodoroMode;
   isBreak: boolean; // whether in break mode
   cycleCount: number; // number of completed pomodoro cycles
+  lastUpdated?: number; // timestamp of last heartbeat
 }
 
 // Simple internal interface for the form
@@ -77,6 +79,7 @@ interface SessionForm {
 }
 
 const ACTIVE_SESSION_KEY = "focus-flow-active-session";
+const SESSION_TIMEOUT_MS = 10000; // 10 seconds timeout for "session closed" detection
 
 export default function Sessions() {
   const [isRunning, setIsRunning] = useState(false);
@@ -263,13 +266,52 @@ export default function Sessions() {
   }, []);
 
   // Restore active session from localStorage
-  const restoreActiveSession = () => {
+  const restoreActiveSession = async () => {
     try {
       const stored = localStorage.getItem(ACTIVE_SESSION_KEY);
       if (stored) {
         const session: ActiveSession = JSON.parse(stored);
+        
+        // CHECK TIMEOUT: If last heartbeat was > 10s ago, assume closed and save
+        const lastUpdated = session.lastUpdated || session.startTime; // Fallback for old sessions
+        const timeSinceLastUpdate = Date.now() - lastUpdated;
+
+        if (timeSinceLastUpdate > SESSION_TIMEOUT_MS && session.activeSubject) {
+          // SESSION ENDED (Browser closed)
+          // Calculate valid duration up to the last update
+          // Duration = LastUpdated - StartTime
+          const durationSeconds = Math.floor((lastUpdated - session.startTime) / 1000);
+          
+          if (durationSeconds >= 60) {
+             const minutes = Math.floor(durationSeconds / 60);
+             const subjectName = session.activeSubjectName || "Unknown Subject";
+             
+             try {
+                // Must use direct API or sessionStorage helper if mutation isn't ready/bound? 
+                // Actually mutation is fine here as we are in effect.
+                // But better to use the mutation provided by hook.
+                await addSessionMutation.mutateAsync({
+                  subject: subjectName,
+                  minutes: minutes
+                });
+                toast.info(`Session restored and saved: ${minutes} mins for ${subjectName}`);
+             } catch (e) {
+                console.error("Failed to auto-save restored session", e);
+                // If api fails, we might want to just keep it in local storage? 
+                // For now, just toast error.
+                toast.error("Failed to save previous session");
+             }
+          }
+
+          // CLEAR session
+          localStorage.removeItem(ACTIVE_SESSION_KEY);
+          // And don't restore state
+          return;
+        }
+
+        // RESUME (Refresh or quick reopen)
         if (session.isRunning && session.activeSubject) {
-          // Calculate elapsed time since session started
+          // Calculate elapsed time since session started (Resume timer)
           const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
           setSeconds(elapsed);
           setActiveSubject(session.activeSubject);
@@ -277,6 +319,11 @@ export default function Sessions() {
           setIsBreak(session.isBreak || false);
           setCycleCount(session.cycleCount || 0);
           setIsRunning(true);
+
+          if (!session.isBreak && session.activeSubjectName) {
+              // Toast strictly for debugging/confirmation? No, cleaner to be silent on refresh
+              // console.log("Resuming session...");
+          }
 
           // Auto-resume music if persistence check passes
           // Note: using local var check because state update is async/batched
@@ -303,20 +350,25 @@ export default function Sessions() {
   // Save active session to localStorage whenever it changes
   useEffect(() => {
     if (isRunning && activeSubject) {
+      // Find subject name to cache for offline/restore saving
+      const subjectName = subjects.find(s => s.id === activeSubject)?.name;
+      
       const session: ActiveSession = {
         isRunning,
         startTime: Date.now() - seconds * 1000, // Calculate start time based on current seconds
         activeSubject,
+        activeSubjectName: subjectName,
         pomodoroMode,
         isBreak,
         cycleCount,
+        lastUpdated: Date.now() // Heartbeat
       };
       localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(session));
     } else {
       // Clear when not running
       localStorage.removeItem(ACTIVE_SESSION_KEY);
     }
-  }, [isRunning, activeSubject, pomodoroMode, seconds, isBreak, cycleCount]);
+  }, [isRunning, activeSubject, pomodoroMode, seconds, isBreak, cycleCount, subjects]);
 
   const formatTime = useCallback((totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
