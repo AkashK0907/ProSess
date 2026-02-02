@@ -71,7 +71,6 @@ export default function Stats() {
     return d;
   }, [monthOffset]);
 
-  // Get data based on time range for bar chart
   const getBarData = () => {
     const now = new Date();
     
@@ -101,18 +100,23 @@ export default function Stats() {
         minutes,
       }));
     } else if (timeRange === "weekly") {
-      // Last 7 days with offset
+      // Calendar Week (Monday - Sunday)
       const weekData = [];
-      const endOfPeriod = new Date(now);
-      endOfPeriod.setDate(now.getDate() + (weekOffset * 7));
+      const targetDate = new Date(now);
+      targetDate.setDate(now.getDate() + (weekOffset * 7));
       
-      // Calculate start date relative to the "current" day in the offset week
-      // If offset is 0, endOfPeriod is today.
-      // We want the last 7 days ending on endOfPeriod.
+      // Get start of week (Monday)
+      const day = targetDate.getDay();
+      const diffToMon = day === 0 ? 6 : day - 1;
       
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(endOfPeriod);
-        date.setDate(endOfPeriod.getDate() - i);
+      const startOfWeek = new Date(targetDate);
+      startOfWeek.setDate(targetDate.getDate() - diffToMon);
+      startOfWeek.setHours(0, 0, 0, 0);
+      
+      // Generate 7 days starting from Monday
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
         const dateStr = formatDate(date);
         const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
         
@@ -380,10 +384,17 @@ export default function Stats() {
 
   const getWeeklyRangeDisplay = () => {
     const now = new Date();
-    const end = new Date(now);
-    end.setDate(now.getDate() + (weekOffset * 7));
-    const start = new Date(end);
-    start.setDate(end.getDate() - 6);
+    const targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + (weekOffset * 7));
+    
+    const day = targetDate.getDay();
+    const diffToMon = day === 0 ? 6 : day - 1;
+    
+    const start = new Date(targetDate);
+    start.setDate(targetDate.getDate() - diffToMon);
+    
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
     
     if (start.getMonth() === end.getMonth()) {
        return `${months[start.getMonth()]} ${start.getDate()}-${end.getDate()}`;
