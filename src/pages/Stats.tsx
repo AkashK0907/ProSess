@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { LoadingScreen } from "@/components/ui/spinner";
+import { StatsSkeleton } from "@/components/skeletons/StatsSkeleton";
 import { FocusHeatmap } from "@/components/stats/FocusHeatmap";
 import {
   BarChart,
@@ -404,7 +405,7 @@ export default function Stats() {
 
   if (loading) {
     return (
-      <LoadingScreen message="Loading statistics..." />
+      <StatsSkeleton />
     );
   }
 

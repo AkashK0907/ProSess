@@ -15,6 +15,7 @@ import {
 import { StudySession, formatDate } from "@/lib/sessionStorage";
 import { toast } from "sonner";
 import { LoadingScreen } from "@/components/ui/spinner";
+import { SessionsSkeleton } from "@/components/skeletons/SessionsSkeleton";
 import { StreakCounter } from "@/components/gamification/StreakCounter";
 import { useMusic } from "@/context/MusicContext";
 import { getSessionStats } from "@/lib/sessionStorage";
@@ -521,7 +522,9 @@ export default function Sessions() {
   );
 
   if (loading) {
-    return <LoadingScreen message="Loading sessions..." />;
+    return (
+      <SessionsSkeleton />
+    );
   }
 
   // Get recent sessions (active list, filtered by non-today if needed, or all)
