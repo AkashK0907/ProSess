@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { LoadingScreen } from "@/components/ui/spinner";
+import { EditSkeleton } from "@/components/skeletons/EditSkeleton";
 import {
   useSubjects,
   useTasks,
@@ -70,11 +71,7 @@ export default function Edit() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <LoadingScreen message="Loading..." />
-      </div>
-    );
+    return <EditSkeleton />;
   }
 
   return (

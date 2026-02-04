@@ -5,6 +5,7 @@ import { DateHeader } from "@/components/tracker/DateHeader";
 import { TaskRow } from "@/components/tracker/TaskRow";
 import { initializeDefaultTasks, toggleTaskCompletion } from "@/lib/taskStorage";
 import { LoadingScreen } from "@/components/ui/spinner";
+import { TrackerSkeleton } from "@/components/skeletons/TrackerSkeleton";
 import { useTasks, useTaskCompletions, QUERY_KEYS, useUser } from "@/hooks/useData";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
@@ -252,9 +253,7 @@ export default function Tracker() {
 
 
   if (loading) {
-     return (
-       <LoadingScreen message="Loading tasks..." />
-     );
+     return <TrackerSkeleton />;
   }
 
   return (
