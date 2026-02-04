@@ -18,7 +18,7 @@ import { LoadingScreen } from "@/components/ui/spinner";
 import { SessionsSkeleton } from "@/components/skeletons/SessionsSkeleton";
 import { StreakCounter } from "@/components/gamification/StreakCounter";
 import { useMusic } from "@/context/MusicContext";
-import { getSessionStats } from "@/lib/sessionStorage";
+import { getSessionStats, calculateStats } from "@/lib/sessionStorage";
 import {
   useSessions,
   useSubjects,
@@ -144,11 +144,10 @@ export default function Sessions() {
 
   // Load streak data
   useEffect(() => {
-    const loadStreak = async () => {
-      const stats = await getSessionStats();
+    if (allSessions.length > 0) {
+      const stats = calculateStats(allSessions);
       setCurrentStreak(stats.currentStreak);
-    };
-    loadStreak();
+    }
   }, [allSessions]); // Reload specific streak if sessions change
 
   // Timer logic with Pomodoro break handling
