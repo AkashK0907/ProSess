@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Mail, Phone, Flame, Trophy, Calendar, TrendingUp, LogOut, Edit2, Eye, EyeOff } from "lucide-react";
+import { sessionsApi } from "@/lib/api";
+import { Mail, Phone, Flame, Trophy, Calendar, TrendingUp, LogOut, Edit2, Eye, EyeOff, Activity } from "lucide-react";
 import { SessionStats, calculateStats } from "@/lib/sessionStorage";
 import { useSessions, useUser, useUpdateUser } from "@/hooks/useData";
 import { logout } from "@/lib/auth";
@@ -60,6 +61,15 @@ export default function Profile() {
     logout();
   };
 
+  const handleDebug = async () => {
+    try {
+      const res = await sessionsApi.getAll();
+      alert(`Success! Fetched ${res.sessions.length} sessions from server.`);
+    } catch (e: any) {
+      alert(`Connection Error: ${e.message}\nFull error: ${JSON.stringify(e)}`);
+    }
+  };
+
   const formatBestDay = (dateStr: string) => {
     if (!dateStr) return "No data yet";
     const date = new Date(dateStr);
@@ -99,6 +109,13 @@ export default function Profile() {
               >
                 <LogOut className="w-4 h-4" />
                 Logout
+              </button>
+              <button
+                onClick={handleDebug}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 rounded-lg text-sm font-medium hover:bg-blue-500/20 transition-colors"
+              >
+                <Activity className="w-4 h-4" />
+                Debug
               </button>
             </div>
           </div>
