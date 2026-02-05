@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Mail, Phone, Flame, Trophy, Calendar, TrendingUp, LogOut, Edit2 } from "lucide-react";
+import { Mail, Phone, Flame, Trophy, Calendar, TrendingUp, LogOut, Edit2, Eye, EyeOff } from "lucide-react";
 import { SessionStats, calculateStats } from "@/lib/sessionStorage";
 import { useSessions, useUser, useUpdateUser } from "@/hooks/useData";
 import { logout } from "@/lib/auth";
@@ -26,7 +26,9 @@ export default function Profile() {
     name: "",
     email: "",
     phone: "",
+    password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   // Derived Stats
   const stats = useMemo(() => calculateStats(sessions), [sessions]);
@@ -36,13 +38,17 @@ export default function Profile() {
       name: user?.name || "",
       email: user?.email || "",
       phone: user?.phone || "",
+      password: "",
     });
+    setShowPassword(false);
     setShowEditDialog(true);
   };
 
   const handleSaveProfile = async () => {
     try {
-      await updateUserMutation.mutateAsync(editForm);
+      const updates: any = { ...editForm };
+      if (!updates.password) delete updates.password;
+      await updateUserMutation.mutateAsync(updates);
       toast.success("Profile updated successfully");
       setShowEditDialog(false);
     } catch (error) {
@@ -305,6 +311,25 @@ export default function Profile() {
                 className="input-field w-full"
                 placeholder="+1 234 567 890"
               />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">New Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={editForm.password}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="input-field w-full pr-10"
+                  placeholder="Leave empty to keep current"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
             <button
               onClick={handleSaveProfile}

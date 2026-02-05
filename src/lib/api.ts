@@ -86,7 +86,7 @@ export const authApi = {
     return apiFetch<{ user: any }>('/auth/me');
   },
 
-  updateUser: async (data: { name?: string; email?: string; phone?: string }) => {
+  updateUser: async (data: { name?: string; email?: string; phone?: string; password?: string }) => {
     return apiFetch<{ user: any }>('/auth/update', {
       method: 'PUT',
       body: JSON.stringify(data),

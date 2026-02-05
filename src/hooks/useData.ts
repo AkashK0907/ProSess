@@ -37,7 +37,7 @@ export const useUser = () => {
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { name?: string; email?: string; phone?: string }) => {
+    mutationFn: async (data: { name?: string; email?: string; phone?: string; password?: string }) => {
       return await authApi.updateUser(data);
     },
     onSuccess: (data) => {

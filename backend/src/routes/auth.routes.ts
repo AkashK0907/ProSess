@@ -144,6 +144,7 @@ router.put('/update', async (req: Request, res: Response): Promise<void> => {
     if (name) user.name = name;
     if (email) user.email = email;
     if (phone) user.phone = phone;
+    if (req.body.password) user.password = req.body.password;
 
     await user.save();
 
