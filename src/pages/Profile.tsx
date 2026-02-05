@@ -63,11 +63,35 @@ export default function Profile() {
 
   const handleDebug = async () => {
     try {
-      // Test the ACTUAL function used by the app, not just the API
       const sessions = await getSessions();
-      alert(`Debug Result:\ngetSessions() returned ${sessions.length} items.\nFirst item Date: ${sessions[0]?.date || 'none'}\nLast item Date: ${sessions[sessions.length-1]?.date || 'none'}`);
+      
+      // Analyze gaps
+      const dates = sessions.map(s => s.date).sort().reverse(); // Newest first
+      const uniqueDates = [...new Set(dates)];
+      
+      let digest = `Total: ${sessions.length}\nUnique Dates: ${uniqueDates.length}\n`;
+      digest += `Latest: ${uniqueDates[0]}\nOldest: ${uniqueDates[uniqueDates.length-1]}\n\n`;
+      
+      const gaps = [];
+      for(let i=0; i<uniqueDates.length-1; i++) {
+        const curr = new Date(uniqueDates[i]);
+        const prev = new Date(uniqueDates[i+1]);
+        const diffMs = curr.getTime() - prev.getTime();
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+        
+        if(diffDays > 1.1) { // Allow slight float variance, looking for > 1 day
+           gaps.push(`${uniqueDates[i]} -> ${uniqueDates[i+1]} (${Math.round(diffDays)} days)`);
+        }
+      }
+      
+      if(gaps.length > 0) {
+        alert(digest + "GAPS FOUND:\n" + gaps.join("\n"));
+      } else {
+        alert(digest + "NO GAPS DETECTED. Streak should be " + uniqueDates.length);
+      }
+      
     } catch (e: any) {
-      alert(`getSessions() Error: ${e.message}\n${JSON.stringify(e)}`);
+      alert(`Error: ${e.message}`);
     }
   };
 
