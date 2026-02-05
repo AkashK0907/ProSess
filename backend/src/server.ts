@@ -19,7 +19,9 @@ app.use(cors({
   origin: [
     'http://localhost:8080',
     'http://localhost:5173',
-    'https://prosess.vercel.app'
+    'https://prosess.vercel.app',
+    'https://prosess.in',
+    'https://www.prosess.in'
   ],
   credentials: true,
 }));
