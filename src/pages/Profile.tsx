@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { sessionsApi } from "@/lib/api";
 import { Mail, Phone, Flame, Trophy, Calendar, TrendingUp, LogOut, Edit2, Eye, EyeOff, Activity } from "lucide-react";
-import { SessionStats, calculateStats } from "@/lib/sessionStorage";
+import { SessionStats, calculateStats, getSessions } from "@/lib/sessionStorage";
 import { useSessions, useUser, useUpdateUser } from "@/hooks/useData";
 import { logout } from "@/lib/auth";
 import {
@@ -63,10 +63,11 @@ export default function Profile() {
 
   const handleDebug = async () => {
     try {
-      const res = await sessionsApi.getAll();
-      alert(`Success! Fetched ${res.sessions.length} sessions from server.`);
+      // Test the ACTUAL function used by the app, not just the API
+      const sessions = await getSessions();
+      alert(`Debug Result:\ngetSessions() returned ${sessions.length} items.\nFirst item Date: ${sessions[0]?.date || 'none'}\nLast item Date: ${sessions[sessions.length-1]?.date || 'none'}`);
     } catch (e: any) {
-      alert(`Connection Error: ${e.message}\nFull error: ${JSON.stringify(e)}`);
+      alert(`getSessions() Error: ${e.message}\n${JSON.stringify(e)}`);
     }
   };
 
