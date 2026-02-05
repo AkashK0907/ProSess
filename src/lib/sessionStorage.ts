@@ -65,6 +65,31 @@ export const getSessions = async (): Promise<StudySession[]> => {
   }
 
   try {
+    // SYNC Step: Check for offline sessions and upload them
+    const currentLocal = getLocalSessions();
+    const offlineToSync = currentLocal.filter(s => s.id.length < 20); // Timestamp IDs are ~13 chars, Mongo IDs are 24
+    
+    if (offlineToSync.length > 0) {
+      console.log(`Found ${offlineToSync.length} offline sessions. Syncing to server...`);
+      await Promise.all(offlineToSync.map(async (s) => {
+        try {
+          await sessionsApi.create({
+            subject: s.subject,
+            minutes: s.minutes,
+            date: s.date,
+            notes: s.notes
+          });
+        } catch (err) {
+          console.error("Failed to sync session:", s, err);
+        }
+      }));
+      
+      // After sync, clear local offline items to prevent duplicates/re-sync
+      // We will repopulate local storage with the authoritative server list below
+      const onlyServerSessions = currentLocal.filter(s => s.id.length >= 20);
+      saveLocalSessions(onlyServerSessions);
+    }
+
     const response = await sessionsApi.getAll();
     const serverSessions: StudySession[] = response.sessions.map((s: any) => ({
       id: s._id,
@@ -75,13 +100,11 @@ export const getSessions = async (): Promise<StudySession[]> => {
     }));
 
     // MERGE STRATEGY:
-    // 1. Get current local sessions
-    // 2. Identify "offline only" sessions (those with numeric timestamp IDs which backend doesn't generate)
+    // 1. Get current local sessions (which should now mostly be server sessions due to sync above)
+    // 2. Identify "offline only" sessions (if any failed to sync or were added just now)
     // 3. Keep offline sessions that aren't in the server list
-    const currentLocal = getLocalSessions();
-    const offlineSessions = currentLocal.filter(local => 
-      // Assuming server IDs are non-numeric strings (Mongo ObjectIds) and local IDs are timestamps
-      // Or simply check if this ID exists in serverSessions
+    const updatedLocal = getLocalSessions();
+    const offlineSessions = updatedLocal.filter(local => 
       !serverSessions.some(server => server.id === local.id)
     );
 
