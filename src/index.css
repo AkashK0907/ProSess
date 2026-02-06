@@ -18,8 +18,8 @@
     --popover: 40 30% 99%;
     --popover-foreground: 30 10% 15%;
 
-    /* Primary - Vibrant terracotta */
-    --primary: 18 65% 52%;
+    /* Primary - Vibrant terracotta (Darker/Premium) */
+    --primary: 18 75% 45%;
     --primary-foreground: 40 33% 97%;
 
     /* Secondary - Enhanced warm gray */
@@ -125,7 +125,9 @@
   .glass-card {
     @apply bg-card/80 rounded-xl border border-white/20;
     backdrop-filter: blur(16px) saturate(180%);
-    box-shadow: var(--shadow-lg), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    box-shadow:
+      var(--shadow-lg),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   }
 
   /* Active nav item */
@@ -142,11 +144,13 @@
 
   .nav-item-active {
     @apply bg-primary text-primary-foreground;
-    box-shadow: 0 4px 12px hsl(var(--primary) / 0.3), 0 0 0 1px hsl(var(--primary) / 0.1);
+    box-shadow:
+      0 4px 12px hsl(var(--primary) / 0.3),
+      0 0 0 1px hsl(var(--primary) / 0.1);
   }
 
   .nav-item-active::before {
-    content: '';
+    content: "";
     position: absolute;
     left: -12px;
     top: 50%;
@@ -179,13 +183,17 @@
   }
 
   .control-button::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
     opacity: 0;
     transition: opacity 0.25s ease;
-    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 70%
+    );
   }
 
   .control-button:active::before {
@@ -194,12 +202,16 @@
 
   .control-button-primary {
     @apply bg-gradient-to-br from-primary to-primary/90 text-primary-foreground w-16 h-16;
-    box-shadow: 0 4px 16px hsl(var(--primary) / 0.35), 0 2px 8px hsl(var(--primary) / 0.2);
+    box-shadow:
+      0 4px 16px hsl(var(--primary) / 0.35),
+      0 2px 8px hsl(var(--primary) / 0.2);
   }
 
   .control-button-primary:hover {
     transform: scale(1.08);
-    box-shadow: 0 8px 24px hsl(var(--primary) / 0.45), 0 4px 12px hsl(var(--primary) / 0.3);
+    box-shadow:
+      0 8px 24px hsl(var(--primary) / 0.45),
+      0 4px 12px hsl(var(--primary) / 0.3);
   }
 
   .control-button-primary:active {
@@ -240,7 +252,11 @@
   /* Stats card with gradient border */
   .stat-card {
     @apply p-6 surface-card;
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.95) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--card) / 0.95) 100%
+    );
   }
 
   /* Page container with gradient background */
@@ -271,7 +287,11 @@
 
   /* Gradient text */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--accent)) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -279,11 +299,15 @@
 
   /* Glow effect */
   .glow {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.15);
+    box-shadow:
+      0 0 20px hsl(var(--primary) / 0.3),
+      0 0 40px hsl(var(--primary) / 0.15);
   }
 
   .glow-accent {
-    box-shadow: 0 0 20px hsl(var(--accent) / 0.3), 0 0 40px hsl(var(--accent) / 0.15);
+    box-shadow:
+      0 0 20px hsl(var(--accent) / 0.3),
+      0 0 40px hsl(var(--accent) / 0.15);
   }
 
   /* Timer glow when active */
@@ -369,7 +393,8 @@
 
   /* Slow pulse for flame */
   @keyframes pulse-slow {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
       transform: scale(1);
     }
@@ -385,14 +410,15 @@
 
   /* Glow pulse animation */
   @keyframes pulse-glow {
-    0%, 100% {
-      text-shadow: 
+    0%,
+    100% {
+      text-shadow:
         0 0 20px hsl(var(--primary) / 0.3),
         0 0 40px hsl(var(--primary) / 0.2),
         0 0 60px hsl(var(--primary) / 0.1);
     }
     50% {
-      text-shadow: 
+      text-shadow:
         0 0 30px hsl(var(--primary) / 0.5),
         0 0 60px hsl(var(--primary) / 0.3),
         0 0 90px hsl(var(--primary) / 0.2);
@@ -458,7 +484,8 @@
 
   /* Floating animation for decorative elements */
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px) translateX(0px);
     }
     25% {
@@ -493,7 +520,8 @@
 
   /* Gradient animation for backgrounds */
   @keyframes gradient-shift {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 0% 50%;
     }
     50% {
