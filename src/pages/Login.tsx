@@ -32,7 +32,7 @@ export default function Login() {
     <div className="min-h-screen relative flex flex-col lg:grid lg:grid-cols-2 bg-gray-50/50 lg:bg-background">
       {/* Mobile-only Branding and Background */}
       <div className="lg:hidden absolute top-0 left-0 w-full h-[45%] bg-primary overflow-hidden">
-        <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 w-full animate-fade-in">
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 w-full animate-fade-in">
            <div className="flex items-center gap-3">
              <img 
               src="/logo.png" 
