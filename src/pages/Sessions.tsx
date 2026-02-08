@@ -109,6 +109,9 @@ export default function Sessions() {
   const [editingSession, setEditingSession] = useState<SessionForm | null>(
     null,
   );
+  
+  // Restoration State to prevent premature overwrites
+  const [isRestoring, setIsRestoring] = useState(true);
 
   // Data Hooks
   const { data: allSessions = [], isLoading: loadingSessions } = useSessions();
@@ -299,56 +302,60 @@ export default function Sessions() {
                 console.error("Failed to auto-save restored session", e);
                 // If api fails, we might want to just keep it in local storage? 
                 // For now, just toast error.
-                toast.error("Failed to save previous session");
+                toast.error("Failed to save previous session, check connection");
              }
           }
 
           // CLEAR session
           localStorage.removeItem(ACTIVE_SESSION_KEY);
-          // And don't restore state
-          return;
-        }
+        } else {
 
-        // RESUME (Refresh or quick reopen)
-        if (session.isRunning && session.activeSubject) {
-          // Calculate elapsed time since session started (Resume timer)
-          const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
-          setSeconds(elapsed);
-          setActiveSubject(session.activeSubject);
-          setPomodoroMode(session.pomodoroMode);
-          setIsBreak(session.isBreak || false);
-          setCycleCount(session.cycleCount || 0);
-          setIsRunning(true);
+          // RESUME (Refresh or quick reopen)
+          if (session.isRunning && session.activeSubject) {
+            // Calculate elapsed time since session started (Resume timer)
+            const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
+            setSeconds(elapsed);
+            setActiveSubject(session.activeSubject);
+            setPomodoroMode(session.pomodoroMode);
+            setIsBreak(session.isBreak || false);
+            setCycleCount(session.cycleCount || 0);
+            setIsRunning(true);
 
-          if (!session.isBreak && session.activeSubjectName) {
-              // Toast strictly for debugging/confirmation? No, cleaner to be silent on refresh
-              // console.log("Resuming session...");
-          }
+            if (!session.isBreak && session.activeSubjectName) {
+                // Toast strictly for debugging/confirmation? No, cleaner to be silent on refresh
+                // console.log("Resuming session...");
+            }
 
-          // Auto-resume music if persistence check passes
-          // Note: using local var check because state update is async/batched
-          const savedMusicState = localStorage.getItem(
-            "focus-flow-music-enabled",
-          );
-          const shouldPlay =
-            savedMusicState !== null ? JSON.parse(savedMusicState) : true;
+            // Auto-resume music if persistence check passes
+            // Note: using local var check because state update is async/batched
+            const savedMusicState = localStorage.getItem(
+              "focus-flow-music-enabled",
+            );
+            const shouldPlay =
+              savedMusicState !== null ? JSON.parse(savedMusicState) : true;
 
-          if (shouldPlay && !session.isBreak && !isPlaying) {
-            if (currentTrack) {
-              togglePlay();
-            } else {
-              playNextTrack();
+            if (shouldPlay && !session.isBreak && !isPlaying) {
+              if (currentTrack) {
+                togglePlay();
+              } else {
+                playNextTrack();
+              }
             }
           }
         }
       }
     } catch (error) {
       console.error("Failed to restore active session:", error);
+    } finally {
+      setIsRestoring(false);
     }
   };
 
   // Save active session to localStorage whenever it changes
   useEffect(() => {
+    // Prevent overwriting/clearing while we are still trying to restore!
+    if (isRestoring) return;
+
     if (isRunning && activeSubject) {
       // Find subject name to cache for offline/restore saving
       const subjectName = subjects.find(s => s.id === activeSubject)?.name;
@@ -368,7 +375,7 @@ export default function Sessions() {
       // Clear when not running
       localStorage.removeItem(ACTIVE_SESSION_KEY);
     }
-  }, [isRunning, activeSubject, pomodoroMode, seconds, isBreak, cycleCount, subjects]);
+  }, [isRunning, activeSubject, pomodoroMode, seconds, isBreak, cycleCount, subjects, isRestoring]);
 
   const formatTime = useCallback((totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);

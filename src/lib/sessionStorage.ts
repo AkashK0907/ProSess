@@ -1,5 +1,6 @@
 // Session management with localStorage and API
 import { sessionsApi } from "./api";
+import { toast } from "sonner";
 import { isAuthenticated } from "./auth";
 import { dataCache } from "./cache";
 
@@ -71,6 +72,8 @@ export const getSessions = async (): Promise<StudySession[]> => {
     
     if (offlineToSync.length > 0) {
       console.log(`Found ${offlineToSync.length} offline sessions. Syncing to server...`);
+      const toastId = toast.loading(`Syncing ${offlineToSync.length} offline sessions...`);
+      
       await Promise.all(offlineToSync.map(async (s) => {
         try {
           await sessionsApi.create({
@@ -83,6 +86,9 @@ export const getSessions = async (): Promise<StudySession[]> => {
           console.error("Failed to sync session:", s, err);
         }
       }));
+      
+      toast.dismiss(toastId);
+      toast.success("Offline sessions synced successfully!");
       
       // After sync, clear local offline items to prevent duplicates/re-sync
       // We will repopulate local storage with the authoritative server list below
