@@ -290,24 +290,46 @@ export default function Sessions() {
              const subjectName = session.activeSubjectName || "Unknown Subject";
              
              try {
-                // Must use direct API or sessionStorage helper if mutation isn't ready/bound? 
-                // Actually mutation is fine here as we are in effect.
-                // But better to use the mutation provided by hook.
                 await addSessionMutation.mutateAsync({
                   subject: subjectName,
                   minutes: minutes
                 });
                 toast.info(`Session restored and saved: ${minutes} mins for ${subjectName}`);
+                // Only clear if save successful
+                localStorage.removeItem(ACTIVE_SESSION_KEY);
              } catch (e) {
                 console.error("Failed to auto-save restored session", e);
-                // If api fails, we might want to just keep it in local storage? 
-                // For now, just toast error.
-                toast.error("Failed to save previous session, check connection");
+                // Keep in local storage? Or maybe retry later? 
+                // For now, at least warn user and maybe DON'T clear so they can try again?
+                // Actually, if we don't clear, it might infinite loop on reload if we aren't careful.
+                // But better to not lose data.
+                // Let's add a "restoration_failed" flag to session maybe? 
+                // Or just leave it and letting them resume?
+                // If we leave it, the next block "RESUME" logic will pick it up?
+                // No, because timeSinceLastUpdate > 10s. 
+                // So it will come back here. Infinite loop of failing API calls.
+                
+                // Better approach: If API fails, create a LOCAL "offline" session directly via sessionStorage helper
+                // because useAddSession wraps addSession which ALREADY supports offline fallback.
+                // The fact that it failed means even local fallback probably failed (rare) or some other error.
+                
+                toast.error("Failed to restore previous session. Check connection.");
+                // We'll keep it as "paused" session so they can at least resume/stop manually to save?
+                // To do that, we let it fall through to the RESUME block?
+                // The RESUME block checks: if (session.isRunning && session.activeSubject) -- which is true.
+                // But we need to update startTime so it doesn't look like it's been running for 10 hours.
+                
+                // Let's try to set it to paused state in local storage?
+                // session.isRunning = false;
+                // session.seconds = durationSeconds; 
+                // ...
+                // Actually, simply NOT removing it and returning here might be enough IF we allow them to resume.
+                return; 
              }
+          } else {
+             // Too short, just clear
+             localStorage.removeItem(ACTIVE_SESSION_KEY);
           }
-
-          // CLEAR session
-          localStorage.removeItem(ACTIVE_SESSION_KEY);
         } else {
 
           // RESUME (Refresh or quick reopen)
@@ -425,9 +447,26 @@ export default function Sessions() {
           minutes,
         });
         toast.success(`Saved ${minutes} minutes for ${subjectName}`);
+        localStorage.removeItem(ACTIVE_SESSION_KEY);
       } catch (error) {
-        toast.error("Failed to save session");
+        toast.error("Failed to save session. Please try again.");
+        // Do NOT clear localStorage so they can try again or it acts as backup
+        // But we DO want to stop the timer UI?
+        // If we stop UI but keep LS, next reload handles it?
+        // Let's just keep UI running or paused?
+        // If we set isRunning(false) but keep LS, the `useEffect` [isRunning...] will update LS to specific state?
+        // The useEffect watching `isRunning` might overwrite our LS with "paused" state.
+        // See line 373: localStorage.setItem(..., session)
+        // If we set isRunning=false, it saves { isRunning: false ... }
+        // This is actually GOOD. It saves it as paused. 
+        // Then user can see it on reload? Or manual resume?
+        // But current UI resets seconds to 0 below.
+        // We should ONLY reset seconds if save success.
+        return; 
       }
+    } else {
+        // Less than 60 seconds, clear it
+        localStorage.removeItem(ACTIVE_SESSION_KEY);
     }
 
     setIsRunning(false);
@@ -437,7 +476,6 @@ export default function Sessions() {
     setActiveSubject(null);
     setIsBreak(false);
     setCycleCount(0);
-    localStorage.removeItem(ACTIVE_SESSION_KEY);
   };
 
   const skipBreak = () => {

@@ -96,6 +96,25 @@ export function SessionHistory({ subjects, onSessionsUpdated }: SessionHistoryPr
 
     try {
       const dateObj = new Date(formDate);
+      const today = new Date();
+      // Reset time for accurate date comparison
+      const todayZero = new Date(today);
+      todayZero.setHours(0,0,0,0);
+      const dateZero = new Date(dateObj);
+      dateZero.setHours(0,0,0,0);
+      
+      const diffTime = todayZero.getTime() - dateZero.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 7) {
+        toast.error("Cannot add sessions older than 7 days");
+        return;
+      }
+      if (diffDays < 0) {
+        toast.error("Cannot add sessions in the future");
+        return;
+      }
+
       await addSession(formSubject, parseInt(formMinutes), dateObj, formNotes || undefined);
       toast.success("Session added");
       setShowAddDialog(false);
@@ -292,6 +311,8 @@ export function SessionHistory({ subjects, onSessionsUpdated }: SessionHistoryPr
                 value={formDate}
                 onChange={(e) => setFormDate(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background"
+                max={new Date().toISOString().split("T")[0]}
+                min={new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
               />
             </div>
             <div>
