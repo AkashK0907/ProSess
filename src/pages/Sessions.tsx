@@ -576,7 +576,6 @@ export default function Sessions() {
   // But we already have 'allSessions' via useSessions which might be default sorted by API.
   // The API sorts { date: -1 }. So allSessions[0] is most recent.
   // We'll show top 5 recent history.
-  const recentHistory = allSessions.slice(0, 5);
 
   return (
     <>
@@ -749,7 +748,16 @@ export default function Sessions() {
         {/* Today's Summary */}
         <section className="animate-fade-up stagger-3">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="section-title mb-0">Total (Today)</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="section-title mb-0">Total (Today)</h2>
+              <button
+                onClick={handleManualEntry}
+                className="p-1.5 rounded-full hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors"
+                title="Log past session"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            </div>
             <span className="text-2xl font-light text-foreground">
               {formatMinutes(totalToday)}
             </span>
