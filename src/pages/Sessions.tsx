@@ -750,13 +750,13 @@ export default function Sessions() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <h2 className="section-title mb-0">Total (Today)</h2>
-{/* <button
+              <button
                 onClick={handleManualEntry}
                 className="p-1.5 rounded-full hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors"
                 title="Log past session"
               >
                 <Plus className="w-5 h-5" />
-              </button> */}
+              </button>
             </div>
             <span className="text-2xl font-light text-foreground">
               {formatMinutes(totalToday)}
