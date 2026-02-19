@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Edit2, Trash2, Plus, Calendar } from "lucide-react";
 import { StudySession, updateSession, deleteSession, getSessions, addSession } from "@/lib/sessionStorage";
+import { getCurrentUser } from "@/lib/auth";
 import { Subject } from "@/lib/subjectStorage";
 import { toast } from "sonner";
 import {
@@ -26,12 +27,23 @@ export function SessionHistory({ subjects, onSessionsUpdated }: SessionHistoryPr
   const [editingSession, setEditingSession] = useState<StudySession | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   // Form states
   const [formSubject, setFormSubject] = useState("");
   const [formMinutes, setFormMinutes] = useState("");
   const [formDate, setFormDate] = useState("");
   const [formNotes, setFormNotes] = useState("");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        setUserEmail(user.email);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const loadHistory = async () => {
     setLoading(true);
@@ -144,13 +156,15 @@ export function SessionHistory({ subjects, onSessionsUpdated }: SessionHistoryPr
       <div className="flex items-center justify-between mb-4">
         <h2 className="section-title mb-0">Session History</h2>
         <div className="flex gap-2">
-{/* <button
-            onClick={() => setShowAddDialog(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            <Plus className="w-4 h-4" />
-            Add Manual Session
-          </button> */}
+          {userEmail === "akashk79026@gmail.com" && (
+            <button
+              onClick={() => setShowAddDialog(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              <Plus className="w-4 h-4" />
+              Add Manual Session
+            </button>
+          )}
           <button
             onClick={loadHistory}
             className="px-4 py-2 bg-secondary text-foreground rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors"
