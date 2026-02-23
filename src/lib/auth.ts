@@ -35,6 +35,9 @@ export const login = async (email: string, password: string): Promise<User> => {
     currentUser = response.user;
     return response.user;
   } catch (error: any) {
+    if (error.message === 'OFFLINE') {
+      throw new Error('Server is waking up. Please wait a moment and try again.');
+    }
     throw new Error(error.message || 'Login failed');
   }
 };

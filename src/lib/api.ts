@@ -39,7 +39,7 @@ async function apiFetch<T>(
 
   // Add timeout to prevent hanging requests
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout (Render cold starts can take ~20s)
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
