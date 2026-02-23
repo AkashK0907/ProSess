@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { sessionsApi, subjectsApi, tasksApi } from "@/lib/api";
 import { isAuthenticated } from "@/lib/auth";
-import { getSessions, StudySession, addSession, updateSession, deleteSession } from "@/lib/sessionStorage";
+import { getSessions, StudySession, addSession, updateSession, deleteSession, syncOfflineSessions } from "@/lib/sessionStorage";
 import { getSubjects, Subject, addSubject, updateSubject, deleteSubject } from "@/lib/subjectStorage";
 import { getTasks, getTaskCompletions, TrackedTask, TaskCompletion, addTask, updateTask, deleteTask } from "@/lib/taskStorage";
 
@@ -49,6 +50,22 @@ export const useUpdateUser = () => {
 
 // Sessions Hook
 export const useSessions = () => {
+  const queryClient = useQueryClient();
+
+  // Run offline sync once on mount — OUTSIDE the query fn so React Query
+  // doesn't get confused by side-effects inside queryFn.
+  useEffect(() => {
+    (async () => {
+      const synced = await syncOfflineSessions();
+      if (synced) {
+        // Force a fresh fetch from the server so the just-synced sessions appear.
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.sessions] });
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.stats] });
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return useQuery({
     queryKey: [QUERY_KEYS.sessions],
     queryFn: async () => {
