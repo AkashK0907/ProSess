@@ -17,13 +17,18 @@ export const getCurrentUser = async (): Promise<User | null> => {
     return null;
   }
 
+  // Return cached user if available (e.g. from login response)
+  if (currentUser) {
+    return currentUser;
+  }
+
   try {
     const response = await authApi.getCurrentUser();
     currentUser = response.user;
     return currentUser;
   } catch (error) {
     console.error('Failed to get current user:', error);
-    return null;
+    throw error; // Let React Query handle retry logic instead of caching null
   }
 };
 

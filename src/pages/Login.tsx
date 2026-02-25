@@ -6,9 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Mail, Lock, Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/hooks/useData';
 
 export default function Login() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +21,9 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(email, password);
+      const user = await login(email, password);
+      // Seed React Query cache so Profile page shows user data immediately
+      queryClient.setQueryData([QUERY_KEYS.user], user);
       toast.success('Welcome back!');
       navigate('/');
     } catch (error: any) {

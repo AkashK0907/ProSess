@@ -6,9 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Mail, Lock, User, Phone, Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/hooks/useData';
 
 export default function Register() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,12 +41,14 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await register(
+      const user = await register(
         formData.email,
         formData.password,
         formData.name,
         formData.phone || undefined
       );
+      // Seed React Query cache so Profile page shows user data immediately
+      queryClient.setQueryData([QUERY_KEYS.user], user);
       toast.success('Account created successfully!');
       navigate('/');
     } catch (error: any) {

@@ -443,32 +443,20 @@ export default function Sessions() {
       const subjectName =
         subjects.find((s) => s.id === activeSubject)?.name || "Unknown";
 
-      try {
-        await addSessionMutation.mutateAsync({
-          subject: subjectName,
-          minutes,
-        });
-        toast.success(`Saved ${minutes} minutes for ${subjectName}`);
-        localStorage.removeItem(ACTIVE_SESSION_KEY);
-      } catch (error) {
-        toast.error("Failed to save session. Please try again.");
-        // Do NOT clear localStorage so they can try again or it acts as backup
-        // But we DO want to stop the timer UI?
-        // If we stop UI but keep LS, next reload handles it?
-        // Let's just keep UI running or paused?
-        // If we set isRunning(false) but keep LS, the `useEffect` [isRunning...] will update LS to specific state?
-        // The useEffect watching `isRunning` might overwrite our LS with "paused" state.
-        // See line 373: localStorage.setItem(..., session)
-        // If we set isRunning=false, it saves { isRunning: false ... }
-        // This is actually GOOD. It saves it as paused. 
-        // Then user can see it on reload? Or manual resume?
-        // But current UI resets seconds to 0 below.
-        // We should ONLY reset seconds if save success.
-        return; 
-      }
+      // Clear UI immediately — don't wait for API
+      localStorage.removeItem(ACTIVE_SESSION_KEY);
+      
+      // Fire the save in the background (addSession has offline fallback)
+      addSessionMutation.mutate(
+        { subject: subjectName, minutes },
+        {
+          onSuccess: () => toast.success(`Saved ${minutes} minutes for ${subjectName}`),
+          onError: () => toast.error("Failed to save session to server. It will sync later."),
+        }
+      );
     } else {
-        // Less than 60 seconds, clear it
-        localStorage.removeItem(ACTIVE_SESSION_KEY);
+      // Less than 60 seconds, clear it
+      localStorage.removeItem(ACTIVE_SESSION_KEY);
     }
 
     setIsRunning(false);
