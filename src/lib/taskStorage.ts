@@ -1,6 +1,6 @@
 // Shared task management with localStorage and API
 import { tasksApi } from "./api";
-import { isAuthenticated } from "./auth";
+import { isTokenValid } from "./auth";
 import { dataCache } from "./cache";
 
 export interface TrackedTask {
@@ -55,7 +55,7 @@ export const getTasks = async (): Promise<TrackedTask[]> => {
     return cached;
   }
 
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     return getLocalTasks();
   }
 
@@ -80,7 +80,7 @@ export const saveTasks = (tasks: TrackedTask[]): void => {
 };
 
 export const addTask = async (name: string): Promise<TrackedTask> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const tasks = getLocalTasks();
     const newTask: TrackedTask = {
       id: Date.now().toString(),
@@ -120,7 +120,7 @@ export const addTask = async (name: string): Promise<TrackedTask> => {
 };
 
 export const updateTask = async (id: string, name: string): Promise<void> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const tasks = getLocalTasks();
     const index = tasks.findIndex((t) => t.id === id);
     if (index !== -1) {
@@ -152,7 +152,7 @@ export const updateTask = async (id: string, name: string): Promise<void> => {
 };
 
 export const deleteTask = async (id: string): Promise<void> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const tasks = getLocalTasks();
     const filtered = tasks.filter((t) => t.id !== id);
     saveLocalTasks(filtered);
@@ -197,7 +197,7 @@ const saveLocalTaskCompletions = (completions: TaskCompletion): void => {
 };
 
 export const getTaskCompletions = async (): Promise<TaskCompletion> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     return getLocalTaskCompletions();
   }
 
@@ -221,7 +221,7 @@ export const saveTaskCompletions = (completions: TaskCompletion): void => {
 };
 
 export const toggleTaskCompletion = async (taskId: string, dateKey: string): Promise<boolean> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const completions = getLocalTaskCompletions();
     if (!completions[dateKey]) {
       completions[dateKey] = {};

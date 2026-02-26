@@ -1,5 +1,16 @@
 // API Client Configuration
+import { toast } from 'sonner';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+// Custom error for expired/invalid auth tokens so callers can distinguish
+// auth failures from network failures.
+export class AuthExpiredError extends Error {
+  constructor(message = 'Session expired. Please log in again.') {
+    super(message);
+    this.name = 'AuthExpiredError';
+  }
+}
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -51,6 +62,15 @@ async function apiFetch<T>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
+      // Detect expired / invalid auth token
+      if (response.status === 401) {
+        // Clear the stale token
+        localStorage.removeItem('focus-flow-token');
+        toast.error('Session expired. Please log in again.');
+        // Small delay so the toast is visible before redirect
+        setTimeout(() => { window.location.href = '/login'; }, 1500);
+        throw new AuthExpiredError();
+      }
       const error = await response.json().catch(() => ({ error: 'Request failed' }));
       throw new Error(error.error || `HTTP ${response.status}`);
     }

@@ -1,6 +1,6 @@
 // Subject management with localStorage and API
 import { subjectsApi } from "./api";
-import { isAuthenticated } from "./auth";
+import { isTokenValid } from "./auth";
 import { dataCache } from "./cache";
 
 export interface Subject {
@@ -59,7 +59,7 @@ export const getSubjects = async (): Promise<Subject[]> => {
     return cached;
   }
 
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     return getLocalSubjects();
   }
 
@@ -87,7 +87,7 @@ export const saveSubjects = (subjects: Subject[]): void => {
 export const addSubject = async (name: string, color?: string): Promise<Subject> => {
   const subjectColor = color || getRandomColor();
 
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const subjects = getLocalSubjects();
     const newSubject: Subject = {
       id: Date.now().toString(),
@@ -128,7 +128,7 @@ export const addSubject = async (name: string, color?: string): Promise<Subject>
 };
 
 export const updateSubject = async (id: string, updates: { name?: string; color?: string }): Promise<void> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const subjects = getLocalSubjects();
     const index = subjects.findIndex((s) => s.id === id);
     if (index !== -1) {
@@ -161,7 +161,7 @@ export const updateSubject = async (id: string, updates: { name?: string; color?
 };
 
 export const deleteSubject = async (id: string): Promise<void> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const subjects = getLocalSubjects();
     const filtered = subjects.filter((s) => s.id !== id);
     saveLocalSubjects(filtered);

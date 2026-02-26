@@ -1,6 +1,6 @@
 import { Habit, HabitCompletionMap, formatDate } from "@/types/habitTypes";
 import { habitsApi } from "./api";
-import { isAuthenticated } from "./auth";
+import { isTokenValid } from "./auth";
 
 const HABITS_KEY = "focus-flow-habits";
 const COMPLETIONS_KEY = "focus-flow-completions";
@@ -38,7 +38,7 @@ const saveLocalHabits = (habits: Habit[]): void => {
 
 // Get habits - try API first, fallback to localStorage
 export const getHabits = async (): Promise<Habit[]> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     return getLocalHabits();
   }
 
@@ -64,7 +64,7 @@ export const saveHabits = (habits: Habit[]): void => {
 };
 
 export const addHabit = async (habit: Omit<Habit, "id">): Promise<Habit> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     // Offline mode - use localStorage
     const habits = getLocalHabits();
     const newHabit: Habit = {
@@ -107,7 +107,7 @@ export const addHabit = async (habit: Omit<Habit, "id">): Promise<Habit> => {
 };
 
 export const updateHabit = async (id: string, updates: Partial<Omit<Habit, "id">>): Promise<void> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const habits = getLocalHabits();
     const index = habits.findIndex((h) => h.id === id);
     if (index !== -1) {
@@ -139,7 +139,7 @@ export const updateHabit = async (id: string, updates: Partial<Omit<Habit, "id">
 };
 
 export const deleteHabit = async (id: string): Promise<void> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const habits = getLocalHabits();
     const filtered = habits.filter((h) => h.id !== id);
     saveLocalHabits(filtered);
@@ -183,7 +183,7 @@ const saveLocalCompletions = (completions: HabitCompletionMap): void => {
 };
 
 export const getCompletions = async (): Promise<HabitCompletionMap> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     return getLocalCompletions();
   }
 
@@ -209,7 +209,7 @@ export const saveCompletions = (completions: HabitCompletionMap): void => {
 export const toggleCompletion = async (habitId: string, date: Date): Promise<boolean> => {
   const dateKey = formatDate(date);
 
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const completions = getLocalCompletions();
     if (!completions[dateKey]) {
       completions[dateKey] = {};

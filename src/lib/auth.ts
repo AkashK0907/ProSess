@@ -11,9 +11,59 @@ export interface User {
 // Current user state
 let currentUser: User | null = null;
 
+/**
+ * Decode a JWT payload without a library.
+ * Returns null if the token is malformed.
+ */
+const decodeJwtPayload = (token: string): Record<string, any> | null => {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Check whether a stored JWT token has expired.
+ * Returns `true` if the token is expired or unparseable.
+ */
+export const isTokenExpired = (): boolean => {
+  const token = localStorage.getItem('focus-flow-token');
+  if (!token) return true;
+
+  const payload = decodeJwtPayload(token);
+  if (!payload || typeof payload.exp !== 'number') return true;
+
+  // exp is in seconds, Date.now() is in ms
+  return Date.now() >= payload.exp * 1000;
+};
+
+/**
+ * Returns true only when a non-expired token exists.
+ * If the token exists but is expired, removes it automatically.
+ */
+export const isTokenValid = (): boolean => {
+  if (!isAuthenticated()) return false;
+  if (isTokenExpired()) {
+    removeAuthToken();
+    currentUser = null;
+    return false;
+  }
+  return true;
+};
+
 // Get current user from API
 export const getCurrentUser = async (): Promise<User | null> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     return null;
   }
 
@@ -27,6 +77,8 @@ export const getCurrentUser = async (): Promise<User | null> => {
     currentUser = response.user;
     return currentUser;
   } catch (error) {
+    // Clear cached user so stale data doesn't linger
+    currentUser = null;
     console.error('Failed to get current user:', error);
     throw error; // Let React Query handle retry logic instead of caching null
   }

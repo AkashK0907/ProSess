@@ -15,7 +15,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
-import { isAuthenticated } from "@/lib/auth";
+import { isTokenValid } from "@/lib/auth";
 
 const queryClient = new QueryClient();
 
@@ -28,8 +28,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/login" element={isAuthenticated() ? <Navigate to="/" replace /> : <Login />} />
-            <Route path="/register" element={isAuthenticated() ? <Navigate to="/" replace /> : <Register />} />
+            <Route path="/login" element={isTokenValid() ? <Navigate to="/" replace /> : <Login />} />
+            <Route path="/register" element={isTokenValid() ? <Navigate to="/" replace /> : <Register />} />
             
             {/* Protected routes with persistent Layout */}
             <Route element={

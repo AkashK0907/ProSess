@@ -1,7 +1,7 @@
 // Session management with localStorage and API
-import { sessionsApi } from "./api";
+import { sessionsApi, AuthExpiredError } from "./api";
 import { toast } from "sonner";
-import { isAuthenticated } from "./auth";
+import { isTokenValid } from "./auth";
 import { dataCache } from "./cache";
 
 export interface StudySession {
@@ -54,7 +54,7 @@ const saveLocalSessions = (sessions: StudySession[]): void => {
 // Sync offline sessions (short timestamp IDs) to the server.
 // Returns true if any sessions were synced so the caller can invalidate caches.
 export const syncOfflineSessions = async (): Promise<boolean> => {
-  if (!isAuthenticated()) return false;
+  if (!isTokenValid()) return false;
 
   const currentLocal = getLocalSessions();
   // Timestamp IDs are ~13 chars; Mongo IDs are 24 chars
@@ -65,6 +65,10 @@ export const syncOfflineSessions = async (): Promise<boolean> => {
   console.log(`Found ${offlineToSync.length} offline sessions. Syncing to server...`);
   const toastId = toast.loading(`Syncing ${offlineToSync.length} offline session(s)...`);
 
+  // Track which sessions actually synced successfully
+  const syncedIds: string[] = [];
+  let authExpired = false;
+
   await Promise.all(
     offlineToSync.map(async (s) => {
       try {
@@ -74,23 +78,39 @@ export const syncOfflineSessions = async (): Promise<boolean> => {
           date: s.date,
           notes: s.notes,
         });
+        syncedIds.push(s.id);
       } catch (err) {
+        if (err instanceof AuthExpiredError) {
+          authExpired = true;
+        }
         console.error("Failed to sync offline session:", s, err);
       }
     })
   );
 
   toast.dismiss(toastId);
-  toast.success("Offline sessions synced successfully!");
 
-  // Remove synced (offline) entries from localStorage so they aren't re-synced
-  const onlyServerSessions = currentLocal.filter(s => s.id.length >= 20);
-  saveLocalSessions(onlyServerSessions);
+  if (authExpired) {
+    // Don't remove any sessions — they'll sync after re-login
+    toast.warning("Session expired. Your offline sessions are saved and will sync after you log in again.");
+    return false;
+  }
 
-  // Bust the data cache so the next getSessions() hits the server
-  dataCache.invalidate('all_sessions');
+  // Only remove sessions that were actually synced
+  if (syncedIds.length > 0) {
+    const remaining = currentLocal.filter(s => !syncedIds.includes(s.id));
+    saveLocalSessions(remaining);
+    toast.success(`${syncedIds.length} offline session(s) synced successfully!`);
+    // Bust the data cache so the next getSessions() hits the server
+    dataCache.invalidate('all_sessions');
+  }
 
-  return true;
+  const failedCount = offlineToSync.length - syncedIds.length;
+  if (failedCount > 0) {
+    toast.error(`${failedCount} session(s) failed to sync. They'll be retried later.`);
+  }
+
+  return syncedIds.length > 0;
 };
 
 // Get all sessions
@@ -103,7 +123,7 @@ export const getSessions = async (): Promise<StudySession[]> => {
     return cached;
   }
 
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     return getLocalSessions();
   }
 
@@ -139,7 +159,7 @@ export const getSessions = async (): Promise<StudySession[]> => {
 export const addSession = async (subject: string, minutes: number, date?: Date, notes?: string): Promise<StudySession> => {
   const sessionDate = date ? formatDate(date) : formatDate(new Date());
 
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const sessions = getLocalSessions();
     const newSession: StudySession = {
       id: Date.now().toString(),
@@ -192,7 +212,7 @@ export const addSession = async (subject: string, minutes: number, date?: Date, 
 
 // Update a session
 export const updateSession = async (id: string, updates: Partial<Omit<StudySession, 'id'>>): Promise<StudySession> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const sessions = getLocalSessions();
     const index = sessions.findIndex(s => s.id === id);
     if (index === -1) {
@@ -237,7 +257,7 @@ export const updateSession = async (id: string, updates: Partial<Omit<StudySessi
 
 // Delete a session
 export const deleteSession = async (id: string): Promise<void> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const sessions = getLocalSessions();
     const filtered = sessions.filter(s => s.id !== id);
     saveLocalSessions(filtered);
@@ -262,7 +282,7 @@ export const deleteSession = async (id: string): Promise<void> => {
 
 // Get session statistics
 export const getSessionStats = async (): Promise<SessionStats> => {
-  if (!isAuthenticated()) {
+  if (!isTokenValid()) {
     const sessions = getLocalSessions();
     return calculateStats(sessions);
   }

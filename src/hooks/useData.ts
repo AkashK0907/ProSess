@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { sessionsApi, subjectsApi, tasksApi } from "@/lib/api";
-import { isAuthenticated } from "@/lib/auth";
+import { isTokenValid } from "@/lib/auth";
 import { getSessions, StudySession, addSession, updateSession, deleteSession, syncOfflineSessions } from "@/lib/sessionStorage";
 import { getSubjects, Subject, addSubject, updateSubject, deleteSubject } from "@/lib/subjectStorage";
 import { getTasks, getTaskCompletions, TrackedTask, TaskCompletion, addTask, updateTask, deleteTask } from "@/lib/taskStorage";
@@ -21,14 +21,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { authApi } from "@/lib/api";
 
 export const useUser = () => {
-  const isAuth = isAuthenticated();
   return useQuery({
     queryKey: [QUERY_KEYS.user],
     queryFn: async () => {
-      if (!isAuth) return null;
+      // Re-check at query time — the token may have expired since mount
+      if (!isTokenValid()) return null;
       return await getCurrentUser();
     },
-    enabled: isAuth,
+    enabled: isTokenValid(),
     staleTime: 5 * 60 * 1000, // 5 minutes (reduced from 1h to fix stale nulls)
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
